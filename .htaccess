@@ -1,13 +1,18 @@
-# Forçar HTTPS e www
+# Forçar HTTPS e domínio sem www
 <IfModule mod_rewrite.c>
     RewriteEngine On
-    
-    # Forçar HTTPS e www
-    RewriteCond %{HTTPS} off [OR]
-    RewriteCond %{HTTP_HOST} !^www\. [NC]
-    RewriteRule ^ https://www.%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
-    # Redireciona requisições para index.php (se arquivo ou pasta não existir)
+    # Redireciona HTTP para HTTPS e www para domínio sem www
+    RewriteCond %{HTTPS} off [OR]
+    RewriteCond %{HTTP_HOST} ^www\. [NC]
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+    # Remove www do domínio após garantir HTTPS
+    RewriteCond %{HTTP_HOST} ^www\.(.+)$ [NC]
+    RewriteRule ^ https://%1%{REQUEST_URI} [L,R=301]
+
+    # Redireciona requisições para index.php
+    # se arquivo ou pasta não existir
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteRule ^ index.php [L,QSA]
